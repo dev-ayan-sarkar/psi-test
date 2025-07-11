@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Globe, Clock, TrendingUp, AlertCircle, CheckCircle, Loader2, Plus, X, Download } from 'lucide-react';
+import { Search, Gauge, Clock, TrendingUp, AlertCircle, CheckCircle, Loader2, Plus, X, Download } from 'lucide-react';
 
 interface PerformanceResult {
   categories: {
@@ -428,7 +428,7 @@ function App() {
         {/* Header */}
         <div className="text-center mb-10">
           <div className="flex items-center justify-center mb-4">
-            <Globe className="h-12 w-12 text-blue-600 mr-3" />
+            <Gauge className="h-12 w-12 text-blue-600 mr-3" />
             <h1 className="text-4xl font-bold text-gray-900">Page Speed Insight</h1>
           </div>
           {/* <p className="text-lg text-gray-600 max-w-2xl mx-auto">
