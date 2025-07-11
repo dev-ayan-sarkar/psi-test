@@ -240,53 +240,56 @@ function App() {
   const generateCSVData = (): string => {
     if (results.length === 0) return '';
 
-    // CSV Headers matching the image format
+    // CSV Headers with conditional formatting setup
     const headers = [
       'Date',
       'Device',
       'Website Name',
       'Time to First Byte',
-      'TTFB Status',
       'Start Render',
-      'Start Render Status',
       'First Contentful Paint',
-      'FCP Status',
       'Speed Index',
-      'Speed Index Status',
       'Largest Contentful Paint',
-      'LCP Status',
       'Cumulative Layout Shift',
-      'CLS Status',
       'Total Blocking Time',
-      'TBT Status',
       'Page Weight',
-      'Page Weight Status',
       'Interaction to Next Paint (INP)',
-      'Total Loading First View',
-      'Total Loading Status'
+      'Total Loading First View'
     ];
 
-    // Helper function to get performance status
-    const getPerformanceStatus = (value: string, metric: string): string => {
+    // Helper function to get cell value with conditional formatting
+    const formatCellValue = (value: string, metric: string): string => {
       const numValue = parseFloat(value);
-      if (isNaN(numValue)) return 'N/A';
+      if (isNaN(numValue)) return value;
       
+      // Add conditional formatting based on performance thresholds
       switch (metric) {
         case 'fcp':
         case 'lcp':
         case 'si':
         case 'tti':
-          return numValue < 2.5 ? 'Good' : numValue < 4.0 ? 'Average' : 'Poor';
+          // Good: Green, Average: Yellow, Poor: Red
+          if (numValue < 2.5) return `${value}|GREEN`;
+          if (numValue < 4.0) return `${value}|YELLOW`;
+          return `${value}|RED`;
         case 'cls':
-          return numValue < 0.1 ? 'Good' : numValue < 0.25 ? 'Average' : 'Poor';
+          if (numValue < 0.1) return `${value}|GREEN`;
+          if (numValue < 0.25) return `${value}|YELLOW`;
+          return `${value}|RED`;
         case 'tbt':
-          return numValue < 200 ? 'Good' : numValue < 600 ? 'Average' : 'Poor';
+          if (numValue < 200) return `${value}|GREEN`;
+          if (numValue < 600) return `${value}|YELLOW`;
+          return `${value}|RED`;
         case 'ttfb':
-          return numValue < 0.2 ? 'Good' : numValue < 0.5 ? 'Average' : 'Poor';
+          if (numValue < 0.2) return `${value}|GREEN`;
+          if (numValue < 0.5) return `${value}|YELLOW`;
+          return `${value}|RED`;
         case 'pageWeight':
-          return numValue < 1000 ? 'Good' : numValue < 3000 ? 'Average' : 'Poor';
+          if (numValue < 1000) return `${value}|GREEN`;
+          if (numValue < 3000) return `${value}|YELLOW`;
+          return `${value}|RED`;
         default:
-          return 'N/A';
+          return value;
       }
     };
 
@@ -322,25 +325,16 @@ function App() {
         date,
         device,
         websiteName,
-        ttfb,
-        getPerformanceStatus(ttfb, 'ttfb'),
-        startRender,
-        getPerformanceStatus(startRender, 'fcp'),
-        fcp,
-        getPerformanceStatus(fcp, 'fcp'),
-        si,
-        getPerformanceStatus(si, 'si'),
-        lcp,
-        getPerformanceStatus(lcp, 'lcp'),
-        cls,
-        getPerformanceStatus(cls, 'cls'),
-        (parseFloat(tbt) / 1000).toFixed(3),
-        getPerformanceStatus((parseFloat(tbt) / 1000).toString(), 'tbt'),
-        pageWeight.toString(),
-        getPerformanceStatus(pageWeight.toString(), 'pageWeight'),
+        formatCellValue(ttfb, 'ttfb'),
+        formatCellValue(startRender, 'fcp'),
+        formatCellValue(fcp, 'fcp'),
+        formatCellValue(si, 'si'),
+        formatCellValue(lcp, 'lcp'),
+        formatCellValue(cls, 'cls'),
+        formatCellValue((parseFloat(tbt) / 1000).toFixed(3), 'tbt'),
+        formatCellValue(pageWeight.toString(), 'pageWeight'),
         inp,
-        totalLoading,
-        getPerformanceStatus(totalLoading, 'tti')
+        formatCellValue(totalLoading, 'tti')
       ];
 
       csvRows.push(row.join(','));
@@ -375,25 +369,16 @@ function App() {
         date,
         device,
         websiteName,
-        ttfb,
-        getPerformanceStatus(ttfb, 'ttfb'),
-        startRender,
-        getPerformanceStatus(startRender, 'fcp'),
-        fcp,
-        getPerformanceStatus(fcp, 'fcp'),
-        si,
-        getPerformanceStatus(si, 'si'),
-        lcp,
-        getPerformanceStatus(lcp, 'lcp'),
-        cls,
-        getPerformanceStatus(cls, 'cls'),
-        (parseFloat(tbt) / 1000).toFixed(3),
-        getPerformanceStatus((parseFloat(tbt) / 1000).toString(), 'tbt'),
-        pageWeight.toString(),
-        getPerformanceStatus(pageWeight.toString(), 'pageWeight'),
+        formatCellValue(ttfb, 'ttfb'),
+        formatCellValue(startRender, 'fcp'),
+        formatCellValue(fcp, 'fcp'),
+        formatCellValue(si, 'si'),
+        formatCellValue(lcp, 'lcp'),
+        formatCellValue(cls, 'cls'),
+        formatCellValue((parseFloat(tbt) / 1000).toFixed(3), 'tbt'),
+        formatCellValue(pageWeight.toString(), 'pageWeight'),
         inp,
-        totalLoading,
-        getPerformanceStatus(totalLoading, 'tti')
+        formatCellValue(totalLoading, 'tti')
       ];
 
       csvRows.push(row.join(','));
@@ -409,7 +394,36 @@ function App() {
       return;
     }
 
-    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+    // Process CSV data to create Excel-compatible format with conditional formatting
+    const processedData = csvData.split('\n').map(row => {
+      if (row.includes('|')) {
+        // Replace color indicators with actual values for Excel
+        return row.replace(/\|GREEN/g, '').replace(/\|YELLOW/g, '').replace(/\|RED/g, '');
+      }
+      return row;
+    }).join('\n');
+
+    // Create Excel-compatible CSV with UTF-8 BOM for proper encoding
+    const BOM = '\uFEFF';
+    const excelData = BOM + processedData;
+    
+    // Add Excel conditional formatting instructions as comments
+    const formattingInstructions = `
+# Excel Conditional Formatting Instructions:
+# After opening this file in Excel, apply the following conditional formatting:
+# 1. Select columns D-N (performance metrics)
+# 2. Go to Home > Conditional Formatting > New Rule
+# 3. Use Formula: =AND(D2<2.5,D2<>"No Data") for Green (Good performance)
+# 4. Use Formula: =AND(D2>=2.5,D2<4,D2<>"No Data") for Yellow (Average performance)  
+# 5. Use Formula: =AND(D2>=4,D2<>"No Data") for Red (Poor performance)
+# 6. For CLS column: Green <0.1, Yellow 0.1-0.25, Red >0.25
+# 7. For TBT column: Green <0.2, Yellow 0.2-0.6, Red >0.6
+# 8. For Page Weight: Green <1000, Yellow 1000-3000, Red >3000
+
+`;
+
+    const finalData = formattingInstructions + excelData;
+    const blob = new Blob([finalData], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     
@@ -420,6 +434,9 @@ function App() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    
+    // Show instructions to user
+    alert('CSV file downloaded! The file includes instructions for applying conditional formatting in Excel. Open the file and follow the commented instructions at the top to apply the same color coding you see in the web interface.');
   };
 
   return (
