@@ -437,7 +437,7 @@ function App() {
         </div>
 
         {/* Input Section */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8 max-w-4xl mx-auto">
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900">Website URLs to Analyze</h3>
