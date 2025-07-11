@@ -373,12 +373,12 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="max-w-full mx-auto px-6 py-8">
+      <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Header */}
-        <div className="text-center mb-10">
-          <div className="flex items-center justify-center mb-4">
-            <Gauge className="h-12 w-12 text-blue-600 mr-3" />
-            <h1 className="text-4xl font-bold text-gray-900">Page Speed Insight</h1>
+        <div className="text-center mb-6 sm:mb-8 lg:mb-10">
+          <div className="flex flex-col sm:flex-row items-center justify-center mb-4">
+            <Gauge className="h-10 w-10 sm:h-12 sm:w-12 text-blue-600 mb-2 sm:mb-0 sm:mr-3" />
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">Page Speed Insight</h1>
           </div>
           {/* <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Analyze your website's performance and SEO metrics using Google Lighthouse technology
@@ -386,13 +386,13 @@ function App() {
         </div>
 
         {/* Input Section */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Website URLs to Analyze</h3>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900">Website URLs to Analyze</h3>
               <button
                 onClick={addUrlField}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center"
+                className="w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add URL
@@ -400,24 +400,24 @@ function App() {
             </div>
             
             {urls.map((url, index) => (
-              <div key={index} className="flex gap-3">
+              <div key={index} className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <Search className="absolute left-3 top-3 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                   <input
                     type="url"
                     value={url}
                     onChange={(e) => updateUrl(index, e.target.value)}
                     placeholder={`Enter website URL ${index + 1} (e.g., https://example.com)`}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-lg"
+                    className="w-full pl-9 sm:pl-10 pr-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm sm:text-base lg:text-lg"
                     onKeyPress={(e) => e.key === 'Enter' && analyzeWebsite()}
                   />
                 </div>
                 {urls.length > 1 && (
                   <button
                     onClick={() => removeUrlField(index)}
-                    className="px-3 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                    className="w-full sm:w-auto px-3 py-2 sm:py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center"
                   >
-                    <X className="h-5 w-5" />
+                    <X className="h-4 w-4 sm:h-5 sm:w-5" />
                   </button>
                 )}
               </div>
@@ -426,16 +426,16 @@ function App() {
             <button
               onClick={analyzeWebsite}
               disabled={loading}
-              className="w-full sm:w-auto px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-semibold flex items-center justify-center min-w-[140px]"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-semibold flex items-center justify-center text-sm sm:text-base"
             >
               {loading ? (
                 <>
-                  <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin mr-2" />
                   Analyzing {urls.filter(u => u.trim()).length} URL{urls.filter(u => u.trim()).length !== 1 ? 's' : ''}...
                 </>
               ) : (
                 <>
-                  <TrendingUp className="h-5 w-5 mr-2" />
+                  <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                   Analyze {urls.filter(u => u.trim()).length} URL{urls.filter(u => u.trim()).length !== 1 ? 's' : ''}
                 </>
               )}
@@ -445,32 +445,32 @@ function App() {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 sm:mb-6">
             <div className="flex items-center">
-              <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
-              <span className="text-red-700">{error}</span>
+              <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 mr-2 flex-shrink-0" />
+              <span className="text-sm sm:text-base text-red-700 break-words">{error}</span>
             </div>
           </div>
         )}
 
         {/* Results Section */}
         {results.length > 0 && (
-          <div className="space-y-8 max-w-none">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">Analysis Results</h2>
+          <div className="space-y-6 sm:space-y-8 max-w-none">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Analysis Results</h2>
               <button
                 onClick={downloadCSV}
-                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center"
+                className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center text-sm sm:text-base"
               >
-                <Download className="h-5 w-5 mr-2" />
+                <Download className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 Export Result
               </button>
             </div>
             
             {/* Performance Analysis Results Header */}
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6">
-                <h3 className="text-xl font-bold mb-2">Performance Analysis Results</h3>
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-bold mb-2">Performance Analysis Results</h3>
               {/*  <p className="text-blue-100">
                   Analyzed {Math.ceil(results.length / 2)} website{Math.ceil(results.length / 2) !== 1 ? 's' : ''} in both Mobile and Desktop modes
                 </p> */}
@@ -478,27 +478,28 @@ function App() {
 
               {/* Mobile Results Table */}
               {results.filter(item => item.device === 'Mobile').length > 0 && (
-                <div className="p-6 border-b border-gray-200">
-                  <h4 className="text-lg font-semibold mb-4 flex items-center">
+                <div className="p-4 sm:p-6 border-b border-gray-200">
+                  <h4 className="text-base sm:text-lg font-semibold mb-4 flex items-center">
                     📱 Mobile Performance Metrics
                   </h4>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-xs">
+                  <div className="overflow-x-auto -mx-4 sm:mx-0">
+                    <div className="inline-block min-w-full align-middle">
+                    <table className="min-w-full text-xs">
                       <thead className="bg-blue-50">
                         <tr>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[8%]">Date</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[6%]">Device</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[15%]">Website Name</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[8%]">Time to First Byte</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[7%]">Start Render</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[9%]">First Contentful Paint</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[7%]">Speed Index</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[9%]">Largest Contentful Paint</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[9%]">Cumulative Layout Shift</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[8%]">Total Blocking Time</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[7%]">Page Weight</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[9%]">Interaction to Next Paint (INP)</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[8%]">Total Loading First View</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[80px]">Date</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[60px]">Device</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[120px]">Website Name</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[80px]">Time to First Byte</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[70px]">Start Render</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[90px]">First Contentful Paint</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[70px]">Speed Index</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[90px]">Largest Contentful Paint</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[90px]">Cumulative Layout Shift</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[80px]">Total Blocking Time</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[70px]">Page Weight</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[90px]">Interaction to Next Paint (INP)</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[80px]">Total Loading First View</th>
                         </tr>
                       </thead>
                       <tbody className="bg-white">
@@ -544,51 +545,53 @@ function App() {
 
                           return (
                             <tr key={`mobile-${index}`} className="hover:bg-gray-50">
-                              <td className="px-2 py-2 border border-gray-300 text-xs">{date}</td>
-                              <td className="px-2 py-2 border border-gray-300 text-xs">{device}</td>
-                              <td className="px-2 py-2 border border-gray-300 text-xs break-all" title={websiteName}>{websiteName}</td>
-                              <td className={`px-2 py-2 border border-gray-300 text-xs ${getCellColor(ttfb, 'ttfb')}`}>{ttfb}</td>
-                              <td className={`px-2 py-2 border border-gray-300 text-xs ${getCellColor(startRender, 'fcp')}`}>{startRender}</td>
-                              <td className={`px-2 py-2 border border-gray-300 text-xs ${getCellColor(fcp, 'fcp')}`}>{fcp}</td>
-                              <td className={`px-2 py-2 border border-gray-300 text-xs ${getCellColor(si, 'si')}`}>{si}</td>
-                              <td className={`px-2 py-2 border border-gray-300 text-xs ${getCellColor(lcp, 'lcp')}`}>{lcp}</td>
-                              <td className={`px-2 py-2 border border-gray-300 text-xs ${getCellColor(cls, 'cls')}`}>{cls}</td>
-                              <td className={`px-2 py-2 border border-gray-300 text-xs ${getCellColor((parseFloat(tbt) / 1000).toString(), 'tbt')}`}>{(parseFloat(tbt) / 1000).toFixed(3)}</td>
-                              <td className={`px-2 py-2 border border-gray-300 text-xs ${getCellColor(pageWeight.toString(), 'pageWeight')}`}>{pageWeight}</td>
-                              <td className="px-2 py-2 border border-gray-300 text-xs">{inp}</td>
-                              <td className={`px-2 py-2 border border-gray-300 text-xs ${getCellColor(totalLoading, 'tti')}`}>{totalLoading}</td>
+                              <td className="px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap">{date}</td>
+                              <td className="px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap">{device}</td>
+                              <td className="px-1 sm:px-2 py-2 border border-gray-300 text-xs break-all max-w-[120px]" title={websiteName}>{websiteName}</td>
+                              <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor(ttfb, 'ttfb')}`}>{ttfb}</td>
+                              <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor(startRender, 'fcp')}`}>{startRender}</td>
+                              <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor(fcp, 'fcp')}`}>{fcp}</td>
+                              <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor(si, 'si')}`}>{si}</td>
+                              <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor(lcp, 'lcp')}`}>{lcp}</td>
+                              <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor(cls, 'cls')}`}>{cls}</td>
+                              <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor((parseFloat(tbt) / 1000).toString(), 'tbt')}`}>{(parseFloat(tbt) / 1000).toFixed(3)}</td>
+                              <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor(pageWeight.toString(), 'pageWeight')}`}>{pageWeight}</td>
+                              <td className="px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap">{inp}</td>
+                              <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor(totalLoading, 'tti')}`}>{totalLoading}</td>
                             </tr>
                           );
                         })}
                       </tbody>
                     </table>
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* Desktop Results Table */}
               {results.filter(item => item.device === 'Desktop').length > 0 && (
-                <div className="p-6">
-                  <h4 className="text-lg font-semibold mb-4 flex items-center">
+                <div className="p-4 sm:p-6">
+                  <h4 className="text-base sm:text-lg font-semibold mb-4 flex items-center">
                     🖥️ Desktop Performance Metrics
                   </h4>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-xs">
+                  <div className="overflow-x-auto -mx-4 sm:mx-0">
+                    <div className="inline-block min-w-full align-middle">
+                    <table className="min-w-full text-xs">
                       <thead className="bg-green-50">
                         <tr>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[8%]">Date</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[6%]">Device</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[15%]">Website Name</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[8%]">Time to First Byte</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[7%]">Start Render</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[9%]">First Contentful Paint</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[7%]">Speed Index</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[9%]">Largest Contentful Paint</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[9%]">Cumulative Layout Shift</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[8%]">Total Blocking Time</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[7%]">Page Weight</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[9%]">Interaction to Next Paint (INP)</th>
-                          <th className="px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 w-[8%]">Total Loading First View</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[80px]">Date</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[60px]">Device</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[120px]">Website Name</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[80px]">Time to First Byte</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[70px]">Start Render</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[90px]">First Contentful Paint</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[70px]">Speed Index</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[90px]">Largest Contentful Paint</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[90px]">Cumulative Layout Shift</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[80px]">Total Blocking Time</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[70px]">Page Weight</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[90px]">Interaction to Next Paint (INP)</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[80px]">Total Loading First View</th>
                         </tr>
                       </thead>
                       <tbody className="bg-white">
@@ -634,30 +637,31 @@ function App() {
 
                           return (
                             <tr key={`desktop-${index}`} className="hover:bg-gray-50">
-                              <td className="px-2 py-2 border border-gray-300 text-xs">{date}</td>
-                              <td className="px-2 py-2 border border-gray-300 text-xs">{device}</td>
-                              <td className="px-2 py-2 border border-gray-300 text-xs break-all" title={websiteName}>{websiteName}</td>
-                              <td className={`px-2 py-2 border border-gray-300 text-xs ${getCellColor(ttfb, 'ttfb')}`}>{ttfb}</td>
-                              <td className={`px-2 py-2 border border-gray-300 text-xs ${getCellColor(startRender, 'fcp')}`}>{startRender}</td>
-                              <td className={`px-2 py-2 border border-gray-300 text-xs ${getCellColor(fcp, 'fcp')}`}>{fcp}</td>
-                              <td className={`px-2 py-2 border border-gray-300 text-xs ${getCellColor(si, 'si')}`}>{si}</td>
-                              <td className={`px-2 py-2 border border-gray-300 text-xs ${getCellColor(lcp, 'lcp')}`}>{lcp}</td>
-                              <td className={`px-2 py-2 border border-gray-300 text-xs ${getCellColor(cls, 'cls')}`}>{cls}</td>
-                              <td className={`px-2 py-2 border border-gray-300 text-xs ${getCellColor((parseFloat(tbt) / 1000).toString(), 'tbt')}`}>{(parseFloat(tbt) / 1000).toFixed(3)}</td>
-                              <td className={`px-2 py-2 border border-gray-300 text-xs ${getCellColor(pageWeight.toString(), 'pageWeight')}`}>{pageWeight}</td>
-                              <td className="px-2 py-2 border border-gray-300 text-xs">{inp}</td>
-                              <td className={`px-2 py-2 border border-gray-300 text-xs ${getCellColor(totalLoading, 'tti')}`}>{totalLoading}</td>
+                              <td className="px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap">{date}</td>
+                              <td className="px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap">{device}</td>
+                              <td className="px-1 sm:px-2 py-2 border border-gray-300 text-xs break-all max-w-[120px]" title={websiteName}>{websiteName}</td>
+                              <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor(ttfb, 'ttfb')}`}>{ttfb}</td>
+                              <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor(startRender, 'fcp')}`}>{startRender}</td>
+                              <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor(fcp, 'fcp')}`}>{fcp}</td>
+                              <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor(si, 'si')}`}>{si}</td>
+                              <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor(lcp, 'lcp')}`}>{lcp}</td>
+                              <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor(cls, 'cls')}`}>{cls}</td>
+                              <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor((parseFloat(tbt) / 1000).toString(), 'tbt')}`}>{(parseFloat(tbt) / 1000).toFixed(3)}</td>
+                              <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor(pageWeight.toString(), 'pageWeight')}`}>{pageWeight}</td>
+                              <td className="px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap">{inp}</td>
+                              <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor(totalLoading, 'tti')}`}>{totalLoading}</td>
                             </tr>
                           );
                         })}
                       </tbody>
                     </table>
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* Footer */}
-              <div className="bg-gray-50 px-6 py-4 text-center">
+              <div className="bg-gray-50 px-4 sm:px-6 py-4 text-center">
                {/* <p className="text-sm text-gray-600">
                   Powered by Google Lighthouse • Analysis completed at {new Date().toLocaleString()}
                 </p> */}
@@ -668,16 +672,16 @@ function App() {
 
         {/* Loading Progress */}
         {loading && results.length > 0 && (
-          <div className="bg-white rounded-xl shadow-lg p-6 text-center">
+          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 text-center">
             <div className="flex items-center justify-center mb-4">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-600 mr-3" />
-              <span className="text-lg font-medium text-gray-700">
+              <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-blue-600 mr-3" />
+              <span className="text-sm sm:text-lg font-medium text-gray-700">
                 Analyzing remaining URLs... ({results.length} of {urls.filter(u => u.trim()).length} completed)
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${(results.length / urls.filter(u => u.trim()).length) * 100}%` }}
               ></div>
             </div>
