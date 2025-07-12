@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Gauge, Clock, TrendingUp, AlertCircle, CheckCircle, Loader2, Plus, X, Download } from 'lucide-react';
 
 interface PerformanceResult {
@@ -25,6 +26,12 @@ interface PerformanceResult {
   finalUrl: string;
 }
 
+interface StoredResult {
+  url: string;
+  device: 'Mobile' | 'Desktop';
+  totalLoadingTime: number;
+  timestamp: string;
+}
 interface TableRow {
   metric: string;
   value: string | number;
@@ -37,6 +44,69 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<{ url: string; result: PerformanceResult; device: 'Mobile' | 'Desktop' }[]>([]);
   const [error, setError] = useState('');
+  const [previousResults, setPreviousResults] = useState<StoredResult[]>([]);
+
+  // Load previous results from localStorage on component mount
+  useEffect(() => {
+    const stored = localStorage.getItem('pageSpeedPreviousResults');
+    if (stored) {
+      try {
+        setPreviousResults(JSON.parse(stored));
+      } catch (error) {
+        console.error('Error loading previous results:', error);
+      }
+    }
+  }, []);
+
+  // Save results to localStorage whenever results change
+  useEffect(() => {
+    if (results.length > 0) {
+      const newStoredResults: StoredResult[] = results.map(item => ({
+        url: item.url,
+        device: item.device,
+        totalLoadingTime: parseFloat(item.result.audits['interactive']?.displayValue?.replace(' s', '') || '0'),
+        timestamp: item.result.fetchTime
+      }));
+      
+      // Merge with existing results, keeping only the most recent for each URL+device combination
+      const updatedResults = [...previousResults];
+      newStoredResults.forEach(newResult => {
+        const existingIndex = updatedResults.findIndex(
+          existing => existing.url === newResult.url && existing.device === newResult.device
+        );
+        if (existingIndex >= 0) {
+          updatedResults[existingIndex] = newResult;
+        } else {
+          updatedResults.push(newResult);
+        }
+      });
+      
+      setPreviousResults(updatedResults);
+      localStorage.setItem('pageSpeedPreviousResults', JSON.stringify(updatedResults));
+    }
+  }, [results]);
+
+  // Function to get previous result for comparison
+  const getPreviousResult = (url: string, device: 'Mobile' | 'Desktop'): number | null => {
+    const previous = previousResults.find(
+      result => result.url === url && result.device === device
+    );
+    return previous ? previous.totalLoadingTime : null;
+  };
+
+  // Function to calculate difference
+  const calculateDifference = (current: number, previous: number | null): string => {
+    if (previous === null) return 'N/A';
+    const diff = previous - current; // Previous - Current (positive means improvement)
+    return diff > 0 ? `+${diff.toFixed(3)}` : diff.toFixed(3);
+  };
+
+  // Function to get difference color
+  const getDifferenceColor = (current: number, previous: number | null): string => {
+    if (previous === null) return 'text-gray-500';
+    const diff = previous - current;
+    return diff > 0 ? 'text-green-600' : diff < 0 ? 'text-red-600' : 'text-gray-600';
+  };
 
   const generateMockResults = (url: string, device: 'Mobile' | 'Desktop'): PerformanceResult => {
     // Desktop generally performs better than mobile
@@ -254,7 +324,8 @@ function App() {
       'Total Blocking Time',
       'Page Weight',
       'Interaction to Next Paint (INP)',
-      'Total Loading First View'
+      'Total Loading First View',
+      'Difference (Previous - Current)'
     ];
 
     const csvRows = [];
@@ -284,6 +355,9 @@ function App() {
       const pageWeight = Math.floor(Math.random() * 5000 + 500);
       const inp = Math.random() < 0.7 ? 'No Data' : (Math.random() * 0.3 + 0.05).toFixed(2);
       const totalLoading = result.audits['interactive']?.displayValue?.replace(' s', '') || '0';
+      const currentTotalLoading = parseFloat(totalLoading);
+      const previousTotalLoading = getPreviousResult(item.url, item.device);
+      const difference = calculateDifference(currentTotalLoading, previousTotalLoading);
 
       const row = [
         date,
@@ -298,7 +372,8 @@ function App() {
         (parseFloat(tbt) / 1000).toFixed(3),
         pageWeight.toString(),
         inp,
-        totalLoading
+        totalLoading,
+        difference
       ];
 
       csvRows.push(row.join(','));
@@ -328,6 +403,9 @@ function App() {
       const pageWeight = Math.floor(Math.random() * 6000 + 1000);
       const inp = Math.random() < 0.5 ? 'No Data' : (Math.random() * 0.2 + 0.03).toFixed(2);
       const totalLoading = result.audits['interactive']?.displayValue?.replace(' s', '') || '0';
+      const currentTotalLoading = parseFloat(totalLoading);
+      const previousTotalLoading = getPreviousResult(item.url, item.device);
+      const difference = calculateDifference(currentTotalLoading, previousTotalLoading);
 
       const row = [
         date,
@@ -342,7 +420,8 @@ function App() {
         (parseFloat(tbt) / 1000).toFixed(3),
         pageWeight.toString(),
         inp,
-        totalLoading
+        totalLoading,
+        difference
       ];
 
       csvRows.push(row.join(','));
@@ -500,6 +579,7 @@ function App() {
                           <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[70px]">Page Weight</th>
                           <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[90px]">Interaction to Next Paint (INP)</th>
                           <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[80px]">Total Loading First View</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[80px]">Difference</th>
                         </tr>
                       </thead>
                       <tbody className="bg-white">
@@ -520,6 +600,10 @@ function App() {
                           const pageWeight = Math.floor(Math.random() * 5000 + 500);
                           const inp = Math.random() < 0.7 ? 'No Data' : (Math.random() * 0.3 + 0.05).toFixed(2);
                           const totalLoading = result.audits['interactive']?.displayValue?.replace(' s', '') || '0';
+                          const currentTotalLoading = parseFloat(totalLoading);
+                          const previousTotalLoading = getPreviousResult(item.url, item.device);
+                          const difference = calculateDifference(currentTotalLoading, previousTotalLoading);
+                          const differenceColor = getDifferenceColor(currentTotalLoading, previousTotalLoading);
 
                           // Helper function to get cell background color based on performance
                           const getCellColor = (value: string, metric: string) => {
@@ -558,6 +642,14 @@ function App() {
                               <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor(pageWeight.toString(), 'pageWeight')}`}>{pageWeight}</td>
                               <td className="px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap">{inp}</td>
                               <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor(totalLoading, 'tti')}`}>{totalLoading}</td>
+                              <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap font-medium ${differenceColor}`}>
+                                {difference}
+                                {difference !== 'N/A' && (
+                                  <span className="ml-1 text-xs">
+                                    {parseFloat(difference) > 0 ? '↑' : parseFloat(difference) < 0 ? '↓' : '→'}
+                                  </span>
+                                )}
+                              </td>
                             </tr>
                           );
                         })}
@@ -592,6 +684,7 @@ function App() {
                           <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[70px]">Page Weight</th>
                           <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[90px]">Interaction to Next Paint (INP)</th>
                           <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[80px]">Total Loading First View</th>
+                          <th className="px-1 sm:px-2 py-2 text-left text-xs font-medium text-gray-700 border border-gray-300 min-w-[80px]">Difference</th>
                         </tr>
                       </thead>
                       <tbody className="bg-white">
@@ -612,6 +705,10 @@ function App() {
                           const pageWeight = Math.floor(Math.random() * 6000 + 1000); // Desktop can handle more
                           const inp = Math.random() < 0.5 ? 'No Data' : (Math.random() * 0.2 + 0.03).toFixed(2);
                           const totalLoading = result.audits['interactive']?.displayValue?.replace(' s', '') || '0';
+                          const currentTotalLoading = parseFloat(totalLoading);
+                          const previousTotalLoading = getPreviousResult(item.url, item.device);
+                          const difference = calculateDifference(currentTotalLoading, previousTotalLoading);
+                          const differenceColor = getDifferenceColor(currentTotalLoading, previousTotalLoading);
 
                           // Helper function to get cell background color based on performance
                           const getCellColor = (value: string, metric: string) => {
@@ -650,6 +747,14 @@ function App() {
                               <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor(pageWeight.toString(), 'pageWeight')}`}>{pageWeight}</td>
                               <td className="px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap">{inp}</td>
                               <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap ${getCellColor(totalLoading, 'tti')}`}>{totalLoading}</td>
+                              <td className={`px-1 sm:px-2 py-2 border border-gray-300 text-xs whitespace-nowrap font-medium ${differenceColor}`}>
+                                {difference}
+                                {difference !== 'N/A' && (
+                                  <span className="ml-1 text-xs">
+                                    {parseFloat(difference) > 0 ? '↑' : parseFloat(difference) < 0 ? '↓' : '→'}
+                                  </span>
+                                )}
+                              </td>
                             </tr>
                           );
                         })}
