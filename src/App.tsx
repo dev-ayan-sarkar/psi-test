@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Gauge, Clock, TrendingUp, AlertCircle, CheckCircle, Loader2, Plus, X, Download } from 'lucide-react';
+import { Search, Gauge, Clock, TrendingUp, AlertCircle, CheckCircle, Loader2, Plus, X, Download, Save, Edit3, Trash2, Check, BookmarkPlus } from 'lucide-react';
 
 interface PerformanceResult {
   categories: {
@@ -31,6 +31,14 @@ interface StoredResult {
   totalLoadingTime: number;
   timestamp: string;
 }
+
+interface SavedUrl {
+  id: string;
+  name: string;
+  url: string;
+  selected: boolean;
+}
+
 interface TableRow {
   metric: string;
   value: string | number;
@@ -40,6 +48,11 @@ interface TableRow {
 
 function App() {
   const [urls, setUrls] = useState<string[]>(['']);
+  const [savedUrls, setSavedUrls] = useState<SavedUrl[]>([]);
+  const [showSavedUrls, setShowSavedUrls] = useState(false);
+  const [editingUrl, setEditingUrl] = useState<string | null>(null);
+  const [newUrlName, setNewUrlName] = useState('');
+  const [newUrlAddress, setNewUrlAddress] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<{ url: string; result: PerformanceResult; device: 'Mobile' | 'Desktop' }[]>([]);
   const [error, setError] = useState('');
@@ -47,6 +60,20 @@ function App() {
 
   // Load previous results from localStorage on component mount
   useEffect(() => {
+    // Load saved URLs
+    const loadSavedUrls = () => {
+      try {
+        const stored = localStorage.getItem('pageSpeedSavedUrls');
+        if (stored) {
+          const parsedUrls = JSON.parse(stored);
+          setSavedUrls(parsedUrls);
+        }
+      } catch (error) {
+        console.error('Error loading saved URLs:', error);
+        setSavedUrls([]);
+      }
+    };
+
     const loadPreviousResults = () => {
       try {
         const stored = localStorage.getItem('pageSpeedPreviousResults');
@@ -61,6 +88,7 @@ function App() {
       }
     };
     
+    loadSavedUrls();
     loadPreviousResults();
   }, []);
 
