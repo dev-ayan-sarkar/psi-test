@@ -541,15 +541,160 @@ function App() {
         {/* Input Section */}
         <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
           <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
               <h3 className="text-base sm:text-lg font-semibold text-gray-900">Website URLs to Analyze</h3>
-              <button
-                onClick={addUrlField}
-                className="w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add URL
-              </button>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <button
+                  onClick={() => setShowSavedUrls(!showSavedUrls)}
+                  className="w-full sm:w-auto px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium flex items-center justify-center"
+                >
+                  <BookmarkPlus className="h-4 w-4 mr-2" />
+                  Manage URLs
+                </button>
+                <button
+                  onClick={addUrlField}
+                  className="w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add URL
+                </button>
+              </div>
+            </div>
+
+            {/* Saved URLs Management Panel */}
+            {showSavedUrls && (
+              <div className="bg-gray-50 rounded-lg p-4 border-2 border-purple-200">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                  <h4 className="text-lg font-semibold text-gray-800">Saved URLs</h4>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <button
+                      onClick={selectAllUrls}
+                      className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors"
+                    >
+                      Select All
+                    </button>
+                    <button
+                      onClick={deselectAllUrls}
+                      className="px-3 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-600 transition-colors"
+                    >
+                      Deselect All
+                    </button>
+                    <button
+                      onClick={loadSelectedUrls}
+                      className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600 transition-colors"
+                    >
+                      Load Selected
+                    </button>
+                  </div>
+                </div>
+
+                {/* Add New URL Form */}
+                <div className="bg-white rounded-lg p-4 mb-4 border border-gray-200">
+                  <h5 className="font-medium text-gray-700 mb-3">Add New URL</h5>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <input
+                      type="text"
+                      value={newUrlName}
+                      onChange={(e) => setNewUrlName(e.target.value)}
+                      placeholder="URL Name (e.g., My Website)"
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-sm"
+                    />
+                    <input
+                      type="url"
+                      value={newUrlAddress}
+                      onChange={(e) => setNewUrlAddress(e.target.value)}
+                      placeholder="https://example.com"
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-sm"
+                    />
+                    <button
+                      onClick={addSavedUrl}
+                      className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium flex items-center justify-center text-sm"
+                    >
+                      <Save className="h-4 w-4 mr-1" />
+                      Save URL
+                    </button>
+                  </div>
+                </div>
+
+                {/* Saved URLs List */}
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {savedUrls.length === 0 ? (
+                    <p className="text-gray-500 text-center py-4">No saved URLs yet. Add some above!</p>
+                  ) : (
+                    savedUrls.map((savedUrl) => (
+                      <div key={savedUrl.id} className="bg-white rounded-lg p-3 border border-gray-200 flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          checked={savedUrl.selected}
+                          onChange={() => toggleUrlSelection(savedUrl.id)}
+                          className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                        />
+                        
+                        {editingUrl === savedUrl.id ? (
+                          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <input
+                              type="text"
+                              defaultValue={savedUrl.name}
+                              id={`edit-name-${savedUrl.id}`}
+                              className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                            />
+                            <input
+                              type="url"
+                              defaultValue={savedUrl.url}
+                              id={`edit-url-${savedUrl.id}`}
+                              className="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                            />
+                          </div>
+                        ) : (
+                          <div className="flex-1">
+                            <div className="font-medium text-gray-800 text-sm">{savedUrl.name}</div>
+                            <div className="text-gray-600 text-xs break-all">{savedUrl.url}</div>
+                          </div>
+                        )}
+                        
+                        <div className="flex gap-1">
+                          {editingUrl === savedUrl.id ? (
+                            <>
+                              <button
+                                onClick={() => {
+                                  const nameInput = document.getElementById(`edit-name-${savedUrl.id}`) as HTMLInputElement;
+                                  const urlInput = document.getElementById(`edit-url-${savedUrl.id}`) as HTMLInputElement;
+                                  editSavedUrl(savedUrl.id, nameInput.value, urlInput.value);
+                                }}
+                                className="p-1 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+                              >
+                                <Check className="h-3 w-3" />
+                              </button>
+                              <button
+                                onClick={() => setEditingUrl(null)}
+                                className="p-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => setEditingUrl(savedUrl.id)}
+                                className="p-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                              >
+                                <Edit3 className="h-3 w-3" />
+                              </button>
+                              <button
+                                onClick={() => removeSavedUrl(savedUrl.id)}
+                                className="p-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
             </div>
             
             {urls.map((url, index) => (
