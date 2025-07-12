@@ -47,57 +47,100 @@ function App() {
 
   // Load previous results from localStorage on component mount
   useEffect(() => {
-    const stored = localStorage.getItem('pageSpeedPreviousResults');
-    if (stored) {
+    const loadPreviousResults = () => {
       try {
-        setPreviousResults(JSON.parse(stored));
+        const stored = localStorage.getItem('pageSpeedPreviousResults');
+        if (stored) {
+          const parsedResults = JSON.parse(stored);
+          console.log('Loaded previous results:', parsedResults);
+          setPreviousResults(parsedResults);
+        }
       } catch (error) {
         console.error('Error loading previous results:', error);
+        setPreviousResults([]);
       }
-    }
+    };
+    
+    loadPreviousResults();
   }, []);
 
-  // Save results to localStorage whenever results change
-  useEffect(() => {
-    if (results.length > 0) {
-      const newStoredResults: StoredResult[] = results.map(item => ({
-        url: item.url,
-        device: item.device,
-        totalLoadingTime: parseFloat(item.result.audits['interactive']?.displayValue?.replace(' s', '') || '0'),
-        timestamp: item.result.fetchTime
-      }));
+  // Save current results as previous results for next comparison
+  const savePreviousResults = (currentResults: { url: string; result: PerformanceResult; device: 'Mobile' | 'Desktop' }[]) => {
+    try {
+      const newStoredResults: StoredResult[] = currentResults.map(item => {
+        const totalLoadingTime = parseFloat(item.result.audits['interactive']?.displayValue?.replace(' s', '') || '0');
+        return {
+          url: item.url,
+          device: item.device,
+          totalLoadingTime: totalLoadingTime,
+          timestamp: item.result.fetchTime
+        };
+      });
       
-      // Merge with existing results, keeping only the most recent for each URL+device combination
-      const updatedResults = [...previousResults];
+      // Get existing results from localStorage
+      const existingStored = localStorage.getItem('pageSpeedPreviousResults');
+      let existingResults: StoredResult[] = [];
+      if (existingStored) {
+        existingResults = JSON.parse(existingStored);
+      }
+      
+      // Merge with existing results, updating existing entries
+      const updatedResults = [...existingResults];
       newStoredResults.forEach(newResult => {
         const existingIndex = updatedResults.findIndex(
           existing => existing.url === newResult.url && existing.device === newResult.device
         );
         if (existingIndex >= 0) {
-          updatedResults[existingIndex] = newResult;
+          // Keep the old result as previous, don't overwrite immediately
+          console.log(`Found existing result for ${newResult.url} ${newResult.device}:`, updatedResults[existingIndex]);
         } else {
           updatedResults.push(newResult);
         }
       });
       
-      setPreviousResults(updatedResults);
-      localStorage.setItem('pageSpeedPreviousResults', JSON.stringify(updatedResults));
+      console.log('Saving results for next time:', newStoredResults);
+      // Save current results for next comparison
+      setTimeout(() => {
+        const finalResults = [...existingResults];
+        newStoredResults.forEach(newResult => {
+          const existingIndex = finalResults.findIndex(
+            existing => existing.url === newResult.url && existing.device === newResult.device
+          );
+          if (existingIndex >= 0) {
+            finalResults[existingIndex] = newResult;
+          } else {
+            finalResults.push(newResult);
+          }
+        });
+        localStorage.setItem('pageSpeedPreviousResults', JSON.stringify(finalResults));
+        console.log('Updated localStorage with new results');
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Error saving previous results:', error);
     }
-  }, [results]);
+  };
 
   // Function to get previous result for comparison
   const getPreviousResult = (url: string, device: 'Mobile' | 'Desktop'): number | null => {
+    console.log(`Looking for previous result: ${url} ${device}`);
+    console.log('Available previous results:', previousResults);
     const previous = previousResults.find(
       result => result.url === url && result.device === device
     );
-    return previous ? previous.totalLoadingTime : null;
+    const result = previous ? previous.totalLoadingTime : null;
+    console.log(`Previous result found:`, result);
+    return result;
   };
 
   // Function to calculate difference
   const calculateDifference = (current: number, previous: number | null): string => {
+    console.log(`Calculating difference: previous=${previous}, current=${current}`);
     if (previous === null) return 'N/A';
     const diff = previous - current; // Previous - Current (positive means improvement)
-    return diff > 0 ? `+${diff.toFixed(3)}` : diff.toFixed(3);
+    const result = diff > 0 ? `+${diff.toFixed(3)}` : diff.toFixed(3);
+    console.log(`Difference calculated: ${result}`);
+    return result;
   };
 
   // Function to get difference color
@@ -239,6 +282,10 @@ function App() {
         analysisResults.push({ url: url.trim(), result: desktopResults, device: 'Desktop' });
         setResults([...analysisResults]);
       }
+      
+      // Save current results as previous results for next comparison
+      savePreviousResults(analysisResults);
+      
     } catch (err) {
       console.error('Analysis error:', err);
       setError(err instanceof Error ? err.message : 'An error occurred while analyzing the website');
