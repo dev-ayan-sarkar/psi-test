@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import React, { useState, useEffect } from 'react';
 import { Search, Gauge, Clock, TrendingUp, AlertCircle, CheckCircle, Loader2, Plus, X, Download } from 'lucide-react';
 
