@@ -527,6 +527,98 @@ function App() {
     document.body.removeChild(link);
   };
 
+  // Add missing functions for saved URLs management
+  const addSavedUrl = () => {
+    if (!newUrlName.trim() || !newUrlAddress.trim()) {
+      setError('Please enter both URL name and address');
+      return;
+    }
+
+    try {
+      new URL(newUrlAddress.trim());
+    } catch {
+      setError('Please enter a valid URL');
+      return;
+    }
+
+    const newUrl: SavedUrl = {
+      id: Date.now().toString(),
+      name: newUrlName.trim(),
+      url: newUrlAddress.trim(),
+      selected: false
+    };
+
+    const updatedUrls = [...savedUrls, newUrl];
+    setSavedUrls(updatedUrls);
+    localStorage.setItem('pageSpeedSavedUrls', JSON.stringify(updatedUrls));
+    
+    setNewUrlName('');
+    setNewUrlAddress('');
+    setError('');
+  };
+
+  const removeSavedUrl = (id: string) => {
+    const updatedUrls = savedUrls.filter(url => url.id !== id);
+    setSavedUrls(updatedUrls);
+    localStorage.setItem('pageSpeedSavedUrls', JSON.stringify(updatedUrls));
+  };
+
+  const editSavedUrl = (id: string, newName: string, newUrl: string) => {
+    if (!newName.trim() || !newUrl.trim()) {
+      setError('Please enter both URL name and address');
+      return;
+    }
+
+    try {
+      new URL(newUrl.trim());
+    } catch {
+      setError('Please enter a valid URL');
+      return;
+    }
+
+    const updatedUrls = savedUrls.map(url => 
+      url.id === id 
+        ? { ...url, name: newName.trim(), url: newUrl.trim() }
+        : url
+    );
+    setSavedUrls(updatedUrls);
+    localStorage.setItem('pageSpeedSavedUrls', JSON.stringify(updatedUrls));
+    setEditingUrl(null);
+    setError('');
+  };
+
+  const toggleUrlSelection = (id: string) => {
+    const updatedUrls = savedUrls.map(url => 
+      url.id === id 
+        ? { ...url, selected: !url.selected }
+        : url
+    );
+    setSavedUrls(updatedUrls);
+    localStorage.setItem('pageSpeedSavedUrls', JSON.stringify(updatedUrls));
+  };
+
+  const selectAllUrls = () => {
+    const updatedUrls = savedUrls.map(url => ({ ...url, selected: true }));
+    setSavedUrls(updatedUrls);
+    localStorage.setItem('pageSpeedSavedUrls', JSON.stringify(updatedUrls));
+  };
+
+  const deselectAllUrls = () => {
+    const updatedUrls = savedUrls.map(url => ({ ...url, selected: false }));
+    setSavedUrls(updatedUrls);
+    localStorage.setItem('pageSpeedSavedUrls', JSON.stringify(updatedUrls));
+  };
+
+  const loadSelectedUrls = () => {
+    const selectedUrls = savedUrls.filter(url => url.selected).map(url => url.url);
+    if (selectedUrls.length === 0) {
+      setError('Please select at least one URL to load');
+      return;
+    }
+    setUrls(selectedUrls);
+    setError('');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
@@ -698,7 +790,6 @@ function App() {
                 </div>
               </div>
             )}
-            </div>
             
             {urls.map((url, index) => (
               <div key={index} className="flex flex-col sm:flex-row gap-3">
