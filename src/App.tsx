@@ -524,6 +524,69 @@ function App() {
     document.body.removeChild(link);
   };
 
+  const selectAllUrls = () => {
+    setSavedUrls(savedUrls.map(url => ({ ...url, selected: true })));
+  };
+
+  const deselectAllUrls = () => {
+    setSavedUrls(savedUrls.map(url => ({ ...url, selected: false })));
+  };
+
+  const toggleUrlSelection = (id: string) => {
+    setSavedUrls(savedUrls.map(url => 
+      url.id === id ? { ...url, selected: !url.selected } : url
+    ));
+  };
+
+  const loadSelectedUrls = () => {
+    const selectedUrls = savedUrls.filter(url => url.selected).map(url => url.url);
+    if (selectedUrls.length > 0) {
+      setUrls(selectedUrls);
+      setShowSavedUrls(false);
+    }
+  };
+
+  const addSavedUrl = () => {
+    if (newUrlName.trim() && newUrlAddress.trim()) {
+      try {
+        new URL(newUrlAddress.trim());
+        const newUrl: SavedUrl = {
+          id: Date.now().toString(),
+          name: newUrlName.trim(),
+          url: newUrlAddress.trim(),
+          selected: false
+        };
+        const updatedUrls = [...savedUrls, newUrl];
+        setSavedUrls(updatedUrls);
+        localStorage.setItem('pageSpeedSavedUrls', JSON.stringify(updatedUrls));
+        setNewUrlName('');
+        setNewUrlAddress('');
+      } catch {
+        setError('Please enter a valid URL');
+      }
+    }
+  };
+
+  const removeSavedUrl = (id: string) => {
+    const updatedUrls = savedUrls.filter(url => url.id !== id);
+    setSavedUrls(updatedUrls);
+    localStorage.setItem('pageSpeedSavedUrls', JSON.stringify(updatedUrls));
+  };
+
+  const editSavedUrl = (id: string, newName: string, newUrl: string) => {
+    try {
+      new URL(newUrl.trim());
+      const updatedUrls = savedUrls.map(url => 
+        url.id === id ? { ...url, name: newName.trim(), url: newUrl.trim() } : url
+      );
+      setSavedUrls(updatedUrls);
+      localStorage.setItem('pageSpeedSavedUrls', JSON.stringify(updatedUrls));
+      setEditingUrl(null);
+    } catch {
+      setError('Please enter a valid URL');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
@@ -695,7 +758,6 @@ function App() {
                 </div>
               </div>
             )}
-            </div>
             
             {urls.map((url, index) => (
               <div key={index} className="flex flex-col sm:flex-row gap-3">
